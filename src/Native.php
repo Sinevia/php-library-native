@@ -13,7 +13,7 @@
 //===========================================================================//
 namespace Sinevia;
 
-class Os {
+class Native {
     public static $logEcho = false;
     public static $logFile = '';
     
@@ -86,9 +86,16 @@ class Os {
     }
   
     private static function directoryMergeRecursiveLinux($sourceDir, $destinationDir){
+        // remove trailing slashes so we don't create doubles
+        $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $destinationDir = rtrim($destinationDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        $cmd = 'rsync -a "' . $src . '" "' . $destinationDir.'"';
+        return self::exec($cmd);
     }
   
     private static function directoryMergeRecursiveWindows($sourceDir, $destinationDir){
+        return directoryCopyRecursiveWindows($sourceDir, $destinationDir);
     }
     
     private static function log($msg) {
