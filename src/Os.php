@@ -2,7 +2,7 @@
 // ========================================================================= //
 // SINEVIA CONFIDENTIAL                                  http://sinevia.com  //
 // ------------------------------------------------------------------------- //
-// COPYRIGHT (c) 2018 Sinevia Ltd                   All rights reserved //
+// COPYRIGHT (c) 2019 Sinevia Ltd                   All rights reserved //
 // ------------------------------------------------------------------------- //
 // LICENCE: All information contained herein is, and remains, property of    //
 // Sinevia Ltd at all times.  Any intellectual and technical concepts        //
@@ -14,6 +14,9 @@
 namespace Sinevia;
 
 class Os {
+    public static $logEcho = false;
+    public static $logFile = '';
+    
     public static function directoryMergeRecursive($sourceDir, $destinationDir) {
         if (self::isWindows()) {
             return self::directoryMergeRecursiveWindows($sourceDir, $destinationDir);
@@ -28,6 +31,22 @@ class Os {
         } else {
             return self::directoryDeleteRecursiveLinux($sourceDir);
         }
+    }
+    
+    public static function exec($command) {
+        self::log(' - Executing command: "' . $command . '"');
+
+        exec($command, $out, $return);
+        self::log($out);
+
+        return $return == 0 ? true : false;
+    }
+    
+    public static function isWindows() {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            return true;
+        }
+        return false;
     }
   
     private static function directoryDeleteRecursiveLinux($sourceDir){
@@ -45,5 +64,24 @@ class Os {
     }
   
     private static function directoryMergeRecursiveWindows($sourceDir, $destinationDir){
+    }
+    
+    private static function log($msg) {
+        if (is_array($msg)) {
+            foreach ($msg as $m) {
+                self::log($m);
+            }
+            return;
+        }
+        
+        $message = date('Y-m-d H:i:s: ') . $msg . "\n";
+        
+        if (self::$logEcho) {
+            echo $message;
+        }
+        
+        if (self::$logFile) {
+            file_put_contents(self::$logFile, $message, FILE_APPEND);
+        }
     }
 }
