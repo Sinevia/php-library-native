@@ -21,7 +21,7 @@ class Native
     /**
      * Recursively deletes a directory
      */
-    function directoryCopyRecursive($sourceDir, $destinationDir)
+    public static function directoryCopyRecursive($sourceDir, $destinationDir)
     {
         if (self::isWindows()) {
             return self::directoryCopyRecursiveWindows($sourceDir, $destinationDir);
@@ -78,13 +78,13 @@ class Native
 
     private static function directoryCopyRecursiveLinux($sourceDir, $destinationDir)
     {
-        // remove trailing slashes so we don't create doubles
+        // remove trailing slashes to not create doubles
         $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '* ';
         $destinationDir = rtrim($destinationDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '';
 
-        // the backslash ignores any bash aliases so we don't get overwrite prompts
+        // the backslash ignores any bash aliases to not get overwrite prompts
         $cmd = '\cp -rp "' . $sourceDir . '" "' . $destinationDir . '"';
-        return $this->exec($cmd);
+        return self::exec($cmd);
     }
 
     private static function directoryCopyRecursiveWindows($sourceDir, $destinationDir)
@@ -92,7 +92,7 @@ class Native
         $sourceDirFixed = str_replace('/', DIRECTORY_SEPARATOR, $sourceDir);
         $destinationDirFixed = str_replace('/', DIRECTORY_SEPARATOR, $destinationDir);
         $cmd = 'xcopy "' . $sourceDirFixed . '" "' . $destinationDirFixed . '" /s /e /h /y';
-        return $this->exec($cmd);
+        return self::exec($cmd);
     }
 
     private static function directoryDeleteRecursiveLinux($sourceDir)
@@ -110,7 +110,7 @@ class Native
 
     private static function directoryMergeRecursiveLinux($sourceDir, $destinationDir)
     {
-        // remove trailing slashes so we don't create doubles
+        // remove trailing slashes to not create doubles
         $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         $destinationDir = rtrim($destinationDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
