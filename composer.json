@@ -5,15 +5,8 @@
     "keywords": ["native", "library", "php", "sinevia"],    
     "homepage": "http://github.com/sinevia/php-library-native",
     "license": "proprietary",
-    "authors": [
-        {
-            "name": "Milan Lesichkov",
-            "email": "lesichkovm@gmail.com",
-            "homepage": "http://lesichkov.co.uk",
-            "role": "Lead Developer"
-        }
-    ],
+    "authors": [],
     "autoload": {
-        "files": ["src/Os.php"]
+        "files": ["src/Native.php"]
     }
 }
