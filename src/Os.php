@@ -17,6 +17,14 @@ class Os {
     public static $logEcho = false;
     public static $logFile = '';
     
+    function directoryCopyRecursive($sourceDir, $destinationDir) {
+        if (self::isWindows()) {
+            return self::directoryCopyRecursiveWindows($sourceDir, $destinationDir);
+        } else {
+            return self::directoryCopyRecursiveLinux($sourceDir, $destinationDir);
+        }
+    }
+    
     public static function directoryMergeRecursive($sourceDir, $destinationDir) {
         if (self::isWindows()) {
             return self::directoryMergeRecursiveWindows($sourceDir, $destinationDir);
@@ -48,9 +56,26 @@ class Os {
         }
         return false;
     }
+    
+    private static function directoryCopyRecursiveLinux($sourceDir, $destinationDir){
+        // remove trailing slashes so we don't create doubles
+        $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '* ';
+        $destinationDir = rtrim($destinationDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '';
+
+        // the backslash ignores any bash aliases so we don't get overwrite prompts
+        $cmd = '\cp -rp "' . $sourceDir .'" "'. $destinationDir . '"';
+        return $this->exec($cmd);
+    }
+    
+    private static function directoryCopyRecursiveWindows($sourceDir, $destinationDir){
+        $sourceDirFixed = str_replace('/', DIRECTORY_SEPARATOR, $sourceDir);
+        $destinationDirFixed = str_replace('/', DIRECTORY_SEPARATOR, $destinationDir);
+        $cmd = 'xcopy "' . $sourceDirFixed . '" "' . $destinationDirFixed . '" /s /e /h /y';
+        return $this->exec($cmd);
+    }
   
     private static function directoryDeleteRecursiveLinux($sourceDir){
-        $cmd = 'rm -rf ' . $sourceDir . '"';
+        $cmd = 'rm -rf "' . $sourceDir . '"';
         return self::exec($cmd);
     }
   
