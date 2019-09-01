@@ -5,18 +5,10 @@ Using the native functions of the operating system to boost speed
 
 ## Installation ##
 
-Add the following to your composer file:
+Using composer
 
-```json
-   "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/sinevia/php-library-native.git"
-        }
-    ],
-    "require": {
-        "sinevia/php-library-native": "dev-master"
-    },
+```
+composer require sinevia/php-library-native
 ```
 
 ## Usage ##
