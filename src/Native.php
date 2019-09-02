@@ -19,6 +19,22 @@ class Native
     public static $logFile = '';
 
     /**
+     * Replaces text in file matching a regular expression
+     * Works also with array of regular expressions and matching replacements
+     */
+    public static function fileReplaceText($filePath, $regex, $replacement)
+    {
+        $contents = file_get_contents($filePath);
+        if (\is_array($regex)) {
+            foreach ($regex as $index => $r) {
+                $out = preg_replace($r[$index], $replacement[$index], $contents);
+            }
+        } else {
+            $out = preg_replace($regex, $replacement, $contents);
+        }
+        return file_put_contents($filePath, $out) === false ? false : true;
+    }
+    /**
      * Creates a directory
      * @return boolean
      */
