@@ -22,11 +22,16 @@ class Native
      * Creates a directory
      * @return boolean
      */
-    public static function directoryCreate($destinationDir)
+    public static function directoryCreate($directoryPath)
     {
-        $isCreated = \mkdir($destinationDir);
+        if (self::isWindows()) {
+            $cmd = 'mkdir "' . $directoryPath . '"';
+        } else {
+            $cmd = '\mkdir --parents "' . $directoryPath . '"';
+        }
+        self::exec($cmd);
 
-        if ($isCreated == false) {
+        if (\is_dir($directoryPath) == false) {
             return false;
         }
 
@@ -34,38 +39,42 @@ class Native
     }
 
     /**
-     * Recursively deletes a directory
+     * Recursively copies a directory into another
+     * The target directory must exist or call with the force parameter
      */
-    public static function directoryCopyRecursive($sourceDir, $destinationDir)
+    public static function directoryCopyRecursive($sourceDirectoryPath, $destinationDirectoryPath, $force = false)
     {
+        if ($force == true) {
+            self::directoryCreate($destinationDirectoryPath);
+        }
         if (self::isWindows()) {
-            return self::directoryCopyRecursiveWindows($sourceDir, $destinationDir);
+            return self::directoryCopyRecursiveWindows($sourceDirectoryPath, $destinationDirectoryPath);
         } else {
-            return self::directoryCopyRecursiveLinux($sourceDir, $destinationDir);
+            return self::directoryCopyRecursiveLinux($sourceDirectoryPath, $destinationDirectoryPath);
         }
     }
 
     /**
      * Recursively merges a directory
      */
-    public static function directoryMergeRecursive($sourceDir, $destinationDir)
+    public static function directoryMergeRecursive($sourceDirectoryPath, $destinationDirectoryPath)
     {
         if (self::isWindows()) {
-            return self::directoryMergeRecursiveWindows($sourceDir, $destinationDir);
+            return self::directoryMergeRecursiveWindows($sourceDirectoryPath, $destinationDirectoryPath);
         } else {
-            return self::directoryMergeRecursiveLinux($sourceDir, $destinationDir);
+            return self::directoryMergeRecursiveLinux($sourceDirectoryPath, $destinationDirectoryPath);
         }
     }
 
     /**
      * Recursively deletes a directory
      */
-    public static function directoryDeleteRecursive($sourceDir)
+    public static function directoryDeleteRecursive($directoryPath)
     {
         if (self::isWindows()) {
-            return self::directoryDeleteRecursiveWindows($sourceDir);
+            return self::directoryDeleteRecursiveWindows($directoryPath);
         } else {
-            return self::directoryDeleteRecursiveLinux($sourceDir);
+            return self::directoryDeleteRecursiveLinux($directoryPath);
         }
     }
 
@@ -91,69 +100,69 @@ class Native
         return false;
     }
 
-    private static function directoryCopyRecursiveLinux($sourceDir, $destinationDir)
+    private static function directoryCopyRecursiveLinux($sourceDirectoryPath, $destinationDirectoryPath)
     {
         // remove trailing slashes to not create doubles
-        $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        $destinationDir = rtrim($destinationDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '';
+        $sourceDirectoryPathFixed = rtrim($sourceDirectoryPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $destinationDirectoryPathFixed = rtrim($destinationDirectoryPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '';
 
-        // the backslash ignores any bash aliases to not get overwrite prompts
-        $cmd = '\cp -Rp "' . $sourceDir . '"* "' . $destinationDir . '"';
+        // the backslash ignores any bash aliases
+        $cmd = '\cp -Rp "' . $sourceDirectoryPathFixed . '"* "' . $destinationDirectoryPathFixed . '"';
         return self::exec($cmd);
     }
 
-    private static function directoryCopyRecursiveWindows($sourceDir, $destinationDir)
+    private static function directoryCopyRecursiveWindows($sourceDirectoryPath, $destinationDir)
     {
-        $sourceDirFixed = str_replace('/', DIRECTORY_SEPARATOR, $sourceDir);
+        $sourceDirectoryPathFixed = str_replace('/', DIRECTORY_SEPARATOR, $sourceDirectoryPath);
         $destinationDirFixed = str_replace('/', DIRECTORY_SEPARATOR, $destinationDir);
-        $cmd = 'xcopy "' . $sourceDirFixed . '" "' . $destinationDirFixed . '" /s /e /h /y';
+        $cmd = 'xcopy "' . $sourceDirectoryPathFixed . '" "' . $destinationDirFixed . '" /s /e /h /y';
         return self::exec($cmd);
     }
 
-    private static function directoryDeleteRecursiveLinux($sourceDir)
+    private static function directoryDeleteRecursiveLinux($directoryPath)
     {
-        $cmd = 'rm -rf "' . $sourceDir . '"';
+        $cmd = '\rm -rf "' . $directoryPath . '"';
         return self::exec($cmd);
     }
 
-    private static function directoryDeleteRecursiveWindows($sourceDir)
+    private static function directoryDeleteRecursiveWindows($directoryPath)
     {
-        $sourceDirPathFixed = str_replace('/', DIRECTORY_SEPARATOR, $sourceDir);
-        $cmd = 'rmdir "' . $sourceDirPathFixed . '" /s /q';
+        $directoryPathFixed = str_replace('/', DIRECTORY_SEPARATOR, $directoryPath);
+        $cmd = 'rmdir "' . $directoryPathFixed . '" /s /q';
         return self::exec($cmd);
     }
 
-    private static function directoryMergeRecursiveLinux($sourceDir, $destinationDir)
+    private static function directoryMergeRecursiveLinux($sourceDirectoryPath, $destinationDirectoryPath)
     {
         // remove trailing slashes to not create doubles
-        $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        $destinationDir = rtrim($destinationDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $sourceDirectoryPathFixed = rtrim($sourceDirectoryPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $destinationDirFixed = rtrim($destinationDirectoryPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-        $cmd = 'rsync -a "' . $sourceDir . '" "' . $destinationDir . '"';
+        $cmd = '\rsync -a "' . $sourceDirectoryPathFixed . '" "' . $destinationDirFixed . '"';
         return self::exec($cmd);
     }
 
-    private static function directoryMergeRecursiveWindows($sourceDir, $destinationDir)
+    private static function directoryMergeRecursiveWindows($sourceDirectoryPath, $destinationDirectoryPath)
     {
-        return directoryCopyRecursiveWindows($sourceDir, $destinationDir);
+        return directoryCopyRecursiveWindows($sourceDirectoryPath, $destinationDirectoryPath);
     }
 
-    private static function log($msg)
+    private static function log($message)
     {
-        if (is_array($msg)) {
-            foreach ($msg as $m) {
-                self::log($m);
+        if (is_array($message)) {
+            foreach ($message as $msg) {
+                self::log($msg);
             }
             return;
         }
 
-        $message = date('Y-m-d H:i:s: ') . $msg . "\n";
+        $message = date('Y-m-d H:i:s: ') . $message . "\n";
 
-        if (self::$logEcho) {
+        if (self::$logEcho == true) {
             echo $message;
         }
 
-        if (self::$logFile) {
+        if (self::$logFile != "") {
             file_put_contents(self::$logFile, $message, FILE_APPEND);
         }
     }
