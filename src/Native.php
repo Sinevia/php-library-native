@@ -106,6 +106,22 @@ class Native
 
         return $return == 0 ? true : false;
     }
+    
+    public static function isLinux() {
+        if (strtoupper(PHP_OS) === 'LINUX') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function isOsx() {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'OSX') {
+            return true;
+        }
+
+        return false;
+    }
 
     public static function isWindows()
     {
