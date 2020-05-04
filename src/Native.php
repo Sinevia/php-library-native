@@ -18,12 +18,31 @@ class Native
     public static $logEcho = false;
     public static $logFile = '';
 
+    public static function fileDelete($filePath) {
+        return unlink($filePath);
+    }
+
+    /**
+     * Replaces text in file matching a regular expression
+     * Works also with array of strings and matching replacements
+     */
+    public static function fileReplaceText($filePath, $string, $replacement) {
+        $contents = file_get_contents($filePath);
+        if (\is_array($string)) {
+            foreach ($string as $index => $s) {
+                $out = preg_replace($s[$index], $replacement[$index], $contents);
+            }
+        } else {
+            $out = str_replace($string, $replacement, $contents);
+        }
+        return file_put_contents($filePath, $out) === false ? false : true;
+    }
+
     /**
      * Replaces text in file matching a regular expression
      * Works also with array of regular expressions and matching replacements
      */
-    public static function fileReplaceText($filePath, $regex, $replacement)
-    {
+    public static function fileReplaceTextRegex($filePath, $regex, $replacement) {
         $contents = file_get_contents($filePath);
         if (\is_array($regex)) {
             foreach ($regex as $index => $r) {
@@ -34,6 +53,15 @@ class Native
         }
         return file_put_contents($filePath, $out) === false ? false : true;
     }
+    
+    public static function directoryClean($directoryPath) {
+        if (is_string($directoryPath) == false) {
+            return false;
+        }
+        self::directoryDeleteRecursive($directoryPath);
+        self::directoryCreate($directoryPath);
+    }
+    
     /**
      * Creates a directory
      * @return boolean
