@@ -228,10 +228,10 @@ class Native
     }
 
     /**
-     * Return the user's home directory.
+     * Returns the user's home directory.
      * @returns string|null
      */
-    function userHome() {
+    public static function userHome() {
         $home = getenv('HOME');
 
         if (!empty($home)) {
