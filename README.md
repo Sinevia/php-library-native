@@ -12,3 +12,7 @@ composer require sinevia/php-library-native
 ```
 
 ## Usage ##
+
+```
+echo \Sinevia\Native::userHome();
+```
