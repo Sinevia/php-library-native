@@ -2,7 +2,7 @@
 // ========================================================================= //
 // SINEVIA CONFIDENTIAL                                  http://sinevia.com  //
 // ------------------------------------------------------------------------- //
-// COPYRIGHT (c) 2019 Sinevia Ltd                        All rights reserved //
+// COPYRIGHT (c) 2020 Sinevia Ltd                        All rights reserved //
 // ------------------------------------------------------------------------- //
 // LICENCE: All information contained herein is, and remains, property of    //
 // Sinevia Ltd at all times.  Any intellectual and technical concepts        //
@@ -17,6 +17,7 @@ class Native
 {
     public static $logEcho = false;
     public static $logFile = '';
+    public static $lastExecOut = ''; // Latest output from exec
 
     public static function fileDelete($filePath) {
         return unlink($filePath);
@@ -121,16 +122,20 @@ class Native
             return self::directoryDeleteRecursiveLinux($directoryPath);
         }
     }
-
+    
     /**
      * Executes a command
      */
-    public static function exec($command)
-    {
+    public static function exec($command) {
         self::log(' - Executing command: "' . $command . '"');
+        
+        self::$lastExecOut = "";
 
         exec($command, $out, $return);
+        
         self::log($out);
+        
+        self::$lastExecOut = $out;
 
         return $return == 0 ? true : false;
     }
