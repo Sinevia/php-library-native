@@ -18,6 +18,28 @@ class Native
     public static $logEcho = false;
     public static $logFile = '';
     public static $lastExecOut = ''; // Latest output from exec
+    
+    public static function commandExists($command) {
+        if (self::isWindows()) {
+            $fp = \popen("where $command", "r");
+            $result = \fgets($fp, 255);
+            if (trim($result) == "") {
+                return false;
+            }
+            $exists = !\preg_match('#Could not find files#', $result);
+            \pclose($fp);
+        } else {
+            $fp = \popen("which $command", "r");
+            $result = \fgets($fp, 255);
+            if (trim($result) == "") {
+                return false;
+            }
+            $exists = !empty($result);
+            \pclose($fp);
+        }
+
+        return $exists;
+    }
 
     public static function fileDelete($filePath) {
         return unlink($filePath);
