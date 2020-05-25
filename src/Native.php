@@ -41,10 +41,25 @@ class Native
         return $exists;
     }
 
-    public static function fileDelete($filePath) {
-        return unlink($filePath);
+    public static function fileCopy($srcFilePath, $targetFilePath) {
+        $src = file_get_contents($srcFilePath);
+        $result = file_put_contents($targetFilePath, $src);
+        if ($result === false) {
+            return false;
+        }
+        if (file_exists($targetFilePath)) {
+            return true;
+        }
+        return false;
     }
 
+    public static function fileDelete($filePath) {
+        if (file_exists($filePath) == false) {
+            return true;
+        }
+        return unlink($filePath);
+    }
+    
     /**
      * Replaces text in file matching a regular expression
      * Works also with array of strings and matching replacements
