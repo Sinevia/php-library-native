@@ -1,6 +1,6 @@
 {
     "name": "sinevia/php-library-native",
-    "description": "PHP Library API",
+    "description": "Native filesystem handling. When speed is of essence",
     "type": "library",
     "keywords": ["native", "library", "php", "sinevia"],    
     "homepage": "http://github.com/sinevia/php-library-native",
